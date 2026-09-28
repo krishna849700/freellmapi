@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 let appInstance: any = null;
 
 async function getApp() {
@@ -22,7 +20,7 @@ async function getApp() {
   return appInstance;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   const app = await getApp();
   return app(req, res);
 }
