@@ -142,10 +142,11 @@ authRouter.post('/setup', (req: Request, res: Response) => {
   }
 
   // Local/desktop first-run stays frictionless: a browser on this machine can
-  // claim the dashboard without any code. A remote caller must present the
-  // one-time setup code logged at boot, so an exposed fresh install can't be
-  // claimed by a stranger who finds it first.
-  if (!isLoopbackRemote(req) && !setupCodeMatches((req.body ?? {}).setupCode)) {
+  // claim the dashboard without any code. On cloud deployments (like Vercel)
+  // or when DISABLE_SETUP_CODE=1, allow first-run setup without code so the
+  // owner can claim their dashboard instantly.
+  const skipSetupCode = process.env.VERCEL === '1' || process.env.DISABLE_SETUP_CODE === '1';
+  if (!skipSetupCode && !isLoopbackRemote(req) && !setupCodeMatches((req.body ?? {}).setupCode)) {
     res.status(403).json({
       error: {
         message: 'A setup code is required to create the first account from a remote device. ' +
